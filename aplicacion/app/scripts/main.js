@@ -79,37 +79,36 @@ var miTabla;
         $('#inputColegiado').val(aData.numcolegiado);
 
         $('#forEditar').modal('show');
-        var validar = $('#formularioEditar').validate({
-            rules: {
-                nombre: {
-                    required: true
+
+        $('#ConfirmaGuardar').on('click',function(event){
+            event.preventDefault();
+            var validar = $('#formularioEditar').validate({
+                rules: {
+                    nombre: {
+                        required: true
+                    },
+                    numColegiado: {
+                        required: true,
+                        digits: true
+                    },
+                    clinicas: {
+                        required: true,
+                        minlength: "1"
+                    }
                 },
-                numColegiado: {
-                    required: true,
-                    digits: true
-                },
-                clinicas: {
-                    required: true,
-                    minlength: "1"
+                messages:{
+                    nombre:{
+                        required:"Debes introducir el nombre"
+                    },
+                    numColegiado:{
+                        required:"Este campo es obligatorio",
+                        digits:"Este campo es numerico"
+                    },
+                    clinicas:{
+                        required:"Debes seleccionar almenos una clinica"
+                    }
                 }
-            },
-            messages:{
-                nombre:{
-                    required:"Debes introducir el nombre"
-                },
-                numColegiado:{
-                    required:"Este campo es obligatorio",
-                    digits:"Este campo es numerico"
-                },
-                clinicas:{
-                    required:"Debes seleccionar almenos una clinica"
-                }
-            }
-        });
-
-        $('#ConfirmaGuardar').on('click',function(){
-
-
+            }).form();
                 var clinicasSelect = $('#inputClinicas').val();
                 var nombreDoctor = $('#inputNombre').val();
                 var numColegiado = $('#inputColegiado').val();
@@ -117,13 +116,6 @@ var miTabla;
                 var clinicas = aData.clinicas;
 
                 var clin = clinicas.split('</li><li>');
-
-            $.each(clin,function(ind,value){
-
-                if(value == $('.option').html()){
-                    this.prop("selected");
-                }
-            });
 
 
             //alert(clinicasSelect+'-'+nombreDoctor+'-'+numColegiado+'-'+doc_id+'-'+clin+'--'+$('.option').html());
@@ -139,15 +131,12 @@ var miTabla;
                         numColegiado: numColegiado,
                         clinicasSelect: clinicasSelect
                     },
-                    error: function (xhr, status, error) {
-                        //mostraríamos alguna ventana de alerta con el error
+                    error: function () {
+
                         $.growl.error({ message: "No se ha podido modificar el doctor" });
                     },
-                    success: function (data) {
-                        //obtenemos el mensaje del servidor, es un array!!!
-                        //var mensaje = (data["mensaje"]) //o data[0], en función del tipo de array!!
-                        //actualizamos datatables:
-                        /*para volver a pedir vía ajax los datos de la tabla*/
+                    success: function () {
+
                         miTabla.ajax.reload();
                         $.growl.notice({ message: "El doctor ha sido modificado" });
 
@@ -171,7 +160,7 @@ var miTabla;
         $('#ConfirmaBorrar').on('click',function(){
 
             $.ajax({
-                /*en principio el type para api restful sería delete pero no lo recogeríamos en $_REQUEST, así que queda como POST*/
+
                 type: 'POST',
                 dataType: 'json',
                 url: 'http://localhost:8888/TAREA_DWEC_DATATABLES_AXAJ/borrar_doctor.php',
@@ -184,11 +173,7 @@ var miTabla;
 
                     $.growl.error({ message: "No se ha podido borrar el doctor" });
                 },
-                success: function (data) {
-                    //obtenemos el mensaje del servidor, es un array!!!
-                    //var mensaje = (data["mensaje"]) //o data[0], en función del tipo de array!!
-                    //actualizamos datatables:
-                    /*para volver a pedir vía ajax los datos de la tabla*/
+                success: function () {
 
                     $.growl.notice({ message: "El doctor ha sido borrado" });
                     miTabla.ajax.reload();
@@ -206,20 +191,22 @@ var miTabla;
 
         $('#forCrear').modal('show');
 
-        var validar =  $('#formularioCrear').validate({
-            rules: {
-                nombre: {
-                    required: true
+        $('#ConfirmaCrear').on('click',function(event){
+           event.preventDefault();
+            var validar =  $('#formularioCrear').validate({
+                rules: {
+                    nombre: {
+                        required: true
+                    },
+                    numColegiado: {
+                        required: true,
+                        digits: true
+                    },
+                    clinicas: {
+                        required: true,
+                        minlength: "1"
+                    }
                 },
-                numColegiado: {
-                    required: true,
-                    digits: true
-                },
-                clinicas: {
-                    required: true,
-                    minlength: "1"
-                }
-            },
                 messages:{
                     nombre:{
                         required:"Debes introducir el nombre"
@@ -233,11 +220,7 @@ var miTabla;
                     }
                 }
 
-        });
-
-
-        $('#ConfirmaCrear').on('click',function(){
-
+            }).form();
             var clinicasSelect = $('#inputCrearClinicas').val();
             var nombreDoctor = $('#inputCrearNombre').val();
             var numColegiado = $('#inputCrearColegiado').val();
