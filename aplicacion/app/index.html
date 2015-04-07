@@ -14,12 +14,12 @@
       <link rel="stylesheet" href="styles/bootstrap.min.css"/>
       <link rel="stylesheet" href="styles/jquery.dataTables.min.css">
       <link rel="stylesheet" href="styles/jquery-ui.min.css"/>
+      <link rel="stylesheet" href="styles/jquery.growl.css"/>
       <link rel="stylesheet" href="styles/main.css">
 
     <!-- endbuild -->
   </head>
   <body>
-
 
     <nav class="navbar navbar-default">
         <div class="container-fluid">
@@ -82,7 +82,7 @@
         </ol>
         <h3 class="text-muted">Doctores</h3>
         <div class="btn-group" role="group" id="botones">
-            <button type="button" class="btn btn-default btn-xs">Nuevo doctor</button>
+            <button id="nuevoDoctor" type="button" class="btn btn-default btn-xs">Nuevo doctor</button>
             <button type="button" class="btn btn-default btn-xs">Exel</button>
             <button type="button" class="btn btn-default btn-xs">PDF</button>
             <button type="button" class="btn btn-default btn-xs">Imprimir</button>
@@ -119,40 +119,35 @@
                     <h4 class="modal-title" id="myModalLabel">Datos del doctor</h4>
                 </div>
                 <div class="modal-body">
-                    <form class="form-horizontal">
-                        <div class="form-group">
-                            <label for="inputNombre" class="col-sm-4 control-label">ID</label>
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control" id="inputID" placeholder="Nombre">
-                            </div>
-                        </div>
+                    <form class="form-horizontal" id="formularioEditar">
+
                         <div class="form-group">
                             <label for="inputNombre" class="col-sm-4 control-label">Nombre</label>
                             <div class="col-sm-8">
-                                <input type="text" class="form-control" id="inputNombre" placeholder="Nombre">
+                                <input type="text" class="form-control" id="inputNombre" placeholder="Nombre" name="nombre">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="inputColegiado" class="col-sm-4 control-label">Nº de Colegiado</label>
                             <div class="col-sm-8">
-                                <input type="text" class="form-control" id="inputColegiado" placeholder="Nº de Colegiado">
+                                <input type="text" class="form-control" id="inputColegiado" placeholder="Nº de Colegiado" name="numColegiado">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="inputClinicas" class="col-sm-4 control-label">Clinicas</label>
                             <div class="col-sm-8">
-                                <select multiple class="form-control" id="inputClinicas">
+                                <select multiple class="form-control listaClinicas" id="inputClinicas" name="clinicas">
                                     <!--AQUI SE CARGA LA LISTA DE CLINIAS-->
                                 </select>
                             </div>
                         </div>
-
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                            <input type="submit" class="btn btn-primary" id="ConfirmaGuardar" value="Guardar">
+                        </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="ConfirmaGuardar">Guardar</button>
-                </div>
+
             </div>
         </div>
     </div>
@@ -167,7 +162,7 @@
                 </div>
                 <div class="modal-body">
                     <p>¿Seguro que quieres borrar el doctor?</p>
-                    <p id="idDoctor">docotasdf</p>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
@@ -176,7 +171,49 @@
             </div>
         </div>
     </div>
+    <!-- Crear Doctor-->
+    <div class="modal fade" id="forCrear" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="mycrearModalLabel">Datos del doctor</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" id="formularioCrear">
 
+                        <div class="form-group">
+                            <label for="inputNombre" class="col-sm-4 control-label">Nombre</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="inputCrearNombre" name="nombre" placeholder="Nombre" required="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputColegiado" class="col-sm-4 control-label">Nº de Colegiado</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="inputCrearColegiado" name="numColegiado" placeholder="Nº de Colegiado" required="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputClinicas" class="col-sm-4 control-label">Clinicas</label>
+                            <div class="col-sm-8">
+                                <select multiple class="form-control listaClinicas" id="inputCrearClinicas" name="clinicas" required="true">
+                                    <!--AQUI SE CARGA LA LISTA DE CLINIAS-->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                            <input type="submit" class="btn btn-primary" id="ConfirmaCrear" value="Guardar">
+
+
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
     <!-- build:js(.) scripts/vendor.js -->
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
@@ -194,6 +231,8 @@
     <script src="scripts/jquery.dataTables.js"></script>
     <script src="scripts/bootstrap.min.js"></script>
     <script src="scripts/fnReloadAjax.js"></script>
+    <script src="scripts/jquery.validate.min.js"></script>
+    <script src="scripts/jquery.growl.js"></script>
     <script src="scripts/main.js"></script>
      <!-- endbuild -->
 </body>

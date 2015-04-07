@@ -1,7 +1,7 @@
 
-var miTabla;
-$(document).ready(function() {
 
+$(document).ready(function() {
+var miTabla;
 //////////////////////////CARGAR LISTA DE CLINICAS EN EL FORMULARIO/////////////
 
     var clinicas = $.ajax({
@@ -12,7 +12,7 @@ $(document).ready(function() {
     })
         .done(function(data) {
             $.each(data, function(index) {
-                $('#inputClinicas').append('<option value="'+data[index].id_clinica+'">' + data[index].nombre + '</option>');
+                $('.listaClinicas').append('<option class="option" value="'+data[index].id_clinica+'" >' + data[index].nombre + '</option>');
             });
         })
 
@@ -25,11 +25,9 @@ $(document).ready(function() {
 
 ///////////////////////////////CARGO LA TABLA///////////////////////////////////////
 
-     miTabla = $('#example').dataTable( {
-
+     miTabla = $('#example').DataTable( {
 
         ajax:"http://localhost:8888/TAREA_DWEC_DATATABLES_AXAJ/datos.php",
-
 
         columns:[
             {data:"id_doctor"},
@@ -70,65 +68,108 @@ $(document).ready(function() {
     } );
 //////////////////////////VENTANAS EMERGENTES///////////////////////////////
 
+    //EDITAR DOCTOR/////////////////////////////////////////////////////////
+
     $('table').on('click','.editar',function(){
 
         var nRow = $(this).parents('tr')[0];
         var aData = miTabla.row(nRow).data();
-        //var fila = nRow.rowIndex;
-        //var aData = miTabla.row(fila).data();
-
-        //var colegiado = 'num colegiado'
 
         $('#inputNombre').val(aData.nombre_doctor);
         $('#inputColegiado').val(aData.numcolegiado);
 
         $('#forEditar').modal('show');
+        var validar = $('#formularioEditar').validate({
+            rules: {
+                nombre: {
+                    required: true
+                },
+                numColegiado: {
+                    required: true,
+                    digits: true
+                },
+                clinicas: {
+                    required: true,
+                    minlength: "1"
+                }
+            },
+            messages:{
+                nombre:{
+                    required:"Debes introducir el nombre"
+                },
+                numColegiado:{
+                    required:"Este campo es obligatorio",
+                    digits:"Este campo es numerico"
+                },
+                clinicas:{
+                    required:"Debes seleccionar almenos una clinica"
+                }
+            }
+        });
 
         $('#ConfirmaGuardar').on('click',function(){
-                var doc_id = $('#inputID').val();
+
+
                 var clinicasSelect = $('#inputClinicas').val();
-                var nombreDocotor = $('#inputNombre').val();
+                var nombreDoctor = $('#inputNombre').val();
                 var numColegiado = $('#inputColegiado').val();
+                var doc_id = aData.id_doctor;
+                var clinicas = aData.clinicas;
 
-            $.ajax({
-                type: 'POST',
-                dataType:'json',
-                url:'http://localhost:8888/TAREA_DWEC_DATATABLES_AXAJ/modificar_doctores.php',
-                data:{
-                    idDoctor: doc_id,
-                    nombreDoctor: nombreDocotor,
-                    numColegiado: numColegiado,
-                    clinicasSelect: clinicasSelect
-                },
-                error: function (xhr, status, error) {
-                    //mostraríamos alguna ventana de alerta con el error
-                    alert("Ha entrado en error");
-                },
-                success: function (data) {
-                    //obtenemos el mensaje del servidor, es un array!!!
-                    //var mensaje = (data["mensaje"]) //o data[0], en función del tipo de array!!
-                    //actualizamos datatables:
-                    /*para volver a pedir vía ajax los datos de la tabla*/
-                    //miTabla.fnDraw();
-                    miTabla.fnReloadAjax("http://localhost:8888/TAREA_DWEC_DATATABLES_AXAJ/datos.php");
+                var clin = clinicas.split('</li><li>');
 
-                    $('#forEditar').modal('hide');
+            $.each(clin,function(ind,value){
+
+                if(value == $('.option').html()){
+                    this.prop("selected");
                 }
-            })
+            });
 
+
+            //alert(clinicasSelect+'-'+nombreDoctor+'-'+numColegiado+'-'+doc_id+'-'+clin+'--'+$('.option').html());
+
+            if(validar==true) {
+                $.ajax({
+                    type: 'POST',
+                    dataType: 'json',
+                    url: 'http://localhost:8888/TAREA_DWEC_DATATABLES_AXAJ/modificar_doctores.php',
+                    data: {
+                        idDoctor: doc_id,
+                        nombreDoctor: nombreDoctor,
+                        numColegiado: numColegiado,
+                        clinicasSelect: clinicasSelect
+                    },
+                    error: function (xhr, status, error) {
+                        //mostraríamos alguna ventana de alerta con el error
+                        $.growl.error({ message: "No se ha podido modificar el doctor" });
+                    },
+                    success: function (data) {
+                        //obtenemos el mensaje del servidor, es un array!!!
+                        //var mensaje = (data["mensaje"]) //o data[0], en función del tipo de array!!
+                        //actualizamos datatables:
+                        /*para volver a pedir vía ajax los datos de la tabla*/
+                        miTabla.ajax.reload();
+                        $.growl.notice({ message: "El doctor ha sido modificado" });
+
+                        $('#forEditar').modal('hide');
+                    }
+                })
+            }
         })
 
 
     });
 
+// BORRAR DOCTOR /////////////////////////////////////////////////////////////
+
     $('table').on('click','.borrar',function() {
 
 
         var id_doctor = $(this).prop('value');
-        $('#idDoctor').html(id_doctor);
         $('#forBorrar').modal('show');
 
         $('#ConfirmaBorrar').on('click',function(){
+
             $.ajax({
                 /*en principio el type para api restful sería delete pero no lo recogeríamos en $_REQUEST, así que queda como POST*/
                 type: 'POST',
@@ -138,17 +179,20 @@ $(document).ready(function() {
                 data: {
                     id_doctor: id_doctor
                 },
-                error: function (xhr, status, error) {
-                    //mostraríamos alguna ventana de alerta con el error
-                    alert("Ha entrado en error");
+
+                error: function () {
+
+                    $.growl.error({ message: "No se ha podido borrar el doctor" });
                 },
                 success: function (data) {
                     //obtenemos el mensaje del servidor, es un array!!!
                     //var mensaje = (data["mensaje"]) //o data[0], en función del tipo de array!!
                     //actualizamos datatables:
                     /*para volver a pedir vía ajax los datos de la tabla*/
-                    //miTabla.fnDraw();
-                      miTabla.fnReloadAjax("http://localhost:8888/TAREA_DWEC_DATATABLES_AXAJ/datos.php");
+
+                    $.growl.notice({ message: "El doctor ha sido borrado" });
+                    miTabla.ajax.reload();
+
 
                     $('#forBorrar').modal('hide');
                 }
@@ -156,7 +200,82 @@ $(document).ready(function() {
         });
     });
 
+// CREAR NUEVO DOCTOR /////////////////////////////////////////////////////////////
 
-          
-    
+    $('#nuevoDoctor').on('click',function(){
+
+        $('#forCrear').modal('show');
+
+        var validar =  $('#formularioCrear').validate({
+            rules: {
+                nombre: {
+                    required: true
+                },
+                numColegiado: {
+                    required: true,
+                    digits: true
+                },
+                clinicas: {
+                    required: true,
+                    minlength: "1"
+                }
+            },
+                messages:{
+                    nombre:{
+                        required:"Debes introducir el nombre"
+                    },
+                    numColegiado:{
+                        required:"Este campo es obligatorio",
+                        digits:"Este campo es numerico"
+                    },
+                    clinicas:{
+                        required:"Debes seleccionar almenos una clinica"
+                    }
+                }
+
+        });
+
+
+        $('#ConfirmaCrear').on('click',function(){
+
+            var clinicasSelect = $('#inputCrearClinicas').val();
+            var nombreDoctor = $('#inputCrearNombre').val();
+            var numColegiado = $('#inputCrearColegiado').val();
+
+            if(validar==true) {
+                $.ajax({
+                    type: 'POST',
+                    dataType: 'json',
+                    url: "http://localhost:8888/TAREA_DWEC_DATATABLES_AXAJ/crear_doctores.php",
+                    data: {
+
+                        nombreDoctor: nombreDoctor,
+                        numColegiado: numColegiado,
+                        clinicasSelect: clinicasSelect
+                    },
+                    error: function () {
+
+                        $.growl.error({ message: "No se ha podido crear el doctor" });
+                    },
+                    success: function (data) {
+
+                        miTabla.ajax.reload();
+                        $.growl.notice({ message: "El doctor ha sido creado" });
+
+
+                        $('#forCrear').modal('hide');
+                        $('#inputCrearClinicas').val('');
+                        $('#inputCrearNombre').val('');
+                        $('#inputCrearColegiado').val('');
+                    }
+                });
+            }
+
+        });
+
+
+    });
+
+
+
 } );
