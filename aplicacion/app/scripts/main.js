@@ -1,7 +1,9 @@
 
 
 $(document).ready(function() {
-var miTabla;
+
+    var miTabla;
+
 //////////////////////////CARGAR LISTA DE CLINICAS EN EL FORMULARIO/////////////
 
     var clinicas = $.ajax({
@@ -15,7 +17,6 @@ var miTabla;
                 $('.listaClinicas').append('<option class="option" value="'+data[index].id_clinica+'" >' + data[index].nombre + '</option>');
             });
         })
-
         .fail(function() {
             console.log("error al cargar la lista de clinicas");
         })
@@ -66,22 +67,48 @@ var miTabla;
         }]
 
     } );
+
 //////////////////////////VENTANAS EMERGENTES///////////////////////////////
 
-    //EDITAR DOCTOR/////////////////////////////////////////////////////////
+//////////////////////////EDITAR DOCTOR/////////////////////////////////////////////////////////
 
     $('table').on('click','.editar',function(){
+
+        //limpio los selected de la lista de clinicas
+        $('.listaClinicas option').removeAttr("selected");
 
         var nRow = $(this).parents('tr')[0];
         var aData = miTabla.row(nRow).data();
 
+        //saco los datos de la tabla
+        var id_doctor = aData.id_doctor;
         $('#inputNombre').val(aData.nombre_doctor);
         $('#inputColegiado').val(aData.numcolegiado);
+        var clinicas = aData.clinicas;
 
+        // clin es un array con el nombre de las clinicas del doctor
+        var clin = clinicas.split('</li><li>');
+
+        // esto hace selected de la lista de clinicas.
+        $.each(clin,function(index, value){
+
+            $('.listaClinicas option').each(function(){
+                var texto = $(this).text();
+
+                if(value == texto){
+                    $(this).prop('selected',true);
+                }
+            });
+        });
+
+        //ahora se muestra el formulario
         $('#forEditar').modal('show');
 
+        //al pulsar el boton de confirmar modificacion
         $('#ConfirmaGuardar').on('click',function(event){
             event.preventDefault();
+
+            //validamos el formulario
             var validar = $('#formularioEditar').validate({
                 rules: {
                     nombre: {
@@ -112,21 +139,15 @@ var miTabla;
                 var clinicasSelect = $('#inputClinicas').val();
                 var nombreDoctor = $('#inputNombre').val();
                 var numColegiado = $('#inputColegiado').val();
-                var doc_id = aData.id_doctor;
-                var clinicas = aData.clinicas;
 
-                var clin = clinicas.split('</li><li>');
-
-
-            //alert(clinicasSelect+'-'+nombreDoctor+'-'+numColegiado+'-'+doc_id+'-'+clin+'--'+$('.option').html());
-
+            //si la validacion a sido correcta
             if(validar==true) {
                 $.ajax({
                     type: 'POST',
                     dataType: 'json',
                     url: 'http://localhost:8888/TAREA_DWEC_DATATABLES_AXAJ/modificar_doctores.php',
                     data: {
-                        idDoctor: doc_id,
+                        idDoctor: id_doctor,
                         nombreDoctor: nombreDoctor,
                         numColegiado: numColegiado,
                         clinicasSelect: clinicasSelect
@@ -137,16 +158,14 @@ var miTabla;
                     },
                     success: function () {
 
-                        miTabla.ajax.reload();
                         $.growl.notice({ message: "El doctor ha sido modificado" });
+                        miTabla.ajax.reload();
 
                         $('#forEditar').modal('hide');
                     }
                 })
             }
         })
-
-
     });
 
 // BORRAR DOCTOR /////////////////////////////////////////////////////////////
@@ -178,7 +197,6 @@ var miTabla;
                     $.growl.notice({ message: "El doctor ha sido borrado" });
                     miTabla.ajax.reload();
 
-
                     $('#forBorrar').modal('hide');
                 }
             })
@@ -188,6 +206,9 @@ var miTabla;
 // CREAR NUEVO DOCTOR /////////////////////////////////////////////////////////////
 
     $('#nuevoDoctor').on('click',function(){
+
+
+        $('.listaClinicas option').removeAttr("selected");
 
         $('#forCrear').modal('show');
 
@@ -244,7 +265,6 @@ var miTabla;
 
                         miTabla.ajax.reload();
                         $.growl.notice({ message: "El doctor ha sido creado" });
-
 
                         $('#forCrear').modal('hide');
                         $('#inputCrearClinicas').val('');
