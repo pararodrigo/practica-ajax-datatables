@@ -8,7 +8,8 @@ $(document).ready(function() {
 //////////////////////////CARGAR LISTA DE CLINICAS EN EL FORMULARIO/////////////
 
     var clinicas = $.ajax({
-        url: 'http://localhost:8888/TAREA_DWEC_DATATABLES_AXAJ/clinicas.php',
+        //url: 'http://localhost:8888/TAREA_DWEC_DATATABLES_AXAJ/clinicas.php',
+        url: 'php/clinicas.php',
         type: 'GET',
         dataType: 'json'
 
@@ -29,8 +30,8 @@ $(document).ready(function() {
 
      miTabla = $('#example').DataTable( {
 
-        ajax:"http://localhost:8888/TAREA_DWEC_DATATABLES_AXAJ/datos.php",
-
+        //ajax:"http://localhost:8888/TAREA_DWEC_DATATABLES_AXAJ/datos.php",
+         ajax:"php/datos.php",
         columns:[
             {data:"id_doctor"},
             {data:"nombre_doctor",
@@ -147,7 +148,8 @@ $(document).ready(function() {
                 var modificar = $.ajax({
                     type: 'POST',
                     dataType: 'json',
-                    url: 'http://localhost:8888/TAREA_DWEC_DATATABLES_AXAJ/modificar_doctores.php',
+                    //url: 'http://localhost:8888/TAREA_DWEC_DATATABLES_AXAJ/modificar_doctores.php',
+                    url: 'php/modificar_doctores.php',
                     data: {
                         idDoctor: id_doctor,
                         nombreDoctor: nombreDoctor,
@@ -184,7 +186,8 @@ $(document).ready(function() {
 
                 type: 'POST',
                 dataType: 'json',
-                url: 'http://localhost:8888/TAREA_DWEC_DATATABLES_AXAJ/borrar_doctor.php',
+                //url: 'http://localhost:8888/TAREA_DWEC_DATATABLES_AXAJ/borrar_doctor.php',
+                url: 'php/borrar_doctor.php',
                 //estos son los datos que queremos actualizar, en json:
                 data: {
                     id_doctor: id_doctor
@@ -247,11 +250,17 @@ $(document).ready(function() {
             var nombreDoctor = $('#inputCrearNombre').val();
             var numColegiado = $('#inputCrearColegiado').val();
 
+            if(numColegiado == ""){
+                numColegiado = null;
+            }
+            alert(numColegiado);
+
             if(validar==true) {
                $.ajax({
                     type: 'POST',
                     dataType: 'json',
-                    url: "http://localhost:8888/TAREA_DWEC_DATATABLES_AXAJ/crear_doctores.php",
+                    //url: "http://localhost:8888/TAREA_DWEC_DATATABLES_AXAJ/crear_doctores.php",
+                   url: "php/crear_doctores.php",
                     data: {
                         nombreDoctor: nombreDoctor,
                         numColegiado: numColegiado,
