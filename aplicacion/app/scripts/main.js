@@ -1,6 +1,7 @@
-
+$.ajaxSetup({cache:false});
 
 $(document).ready(function() {
+
 
     var miTabla;
 
@@ -60,13 +61,11 @@ $(document).ready(function() {
         language:{
             url:"//cdn.datatables.net/plug-ins/f2c75b7247b/i18n/Spanish.json"
         },
-
         columnDefs:[{
             targets:[0],
             visible:false
         }]
-
-    } );
+    });
 
 //////////////////////////VENTANAS EMERGENTES///////////////////////////////
 
@@ -81,10 +80,13 @@ $(document).ready(function() {
         var aData = miTabla.row(nRow).data();
 
         //saco los datos de la tabla
-        var id_doctor = aData.id_doctor;
+        var id_doctor = $(this).prop('value');
         $('#inputNombre').val(aData.nombre_doctor);
         $('#inputColegiado').val(aData.numcolegiado);
         var clinicas = aData.clinicas;
+
+        //paso el id_doctor a un imput timpo hidden para recuperarlo despues
+        $('#id_doc').prop('value',id_doctor);
 
         // clin es un array con el nombre de las clinicas del doctor
         var clin = clinicas.split('</li><li>');
@@ -105,7 +107,7 @@ $(document).ready(function() {
         $('#forEditar').modal('show');
 
         //al pulsar el boton de confirmar modificacion
-        $('#ConfirmaGuardar').on('click',function(event){
+        $('#ConfirmaGuardar').off('click').on('click',function(event){
             event.preventDefault();
 
             //validamos el formulario
@@ -115,7 +117,6 @@ $(document).ready(function() {
                         required: true
                     },
                     numColegiado: {
-                        required: true,
                         digits: true
                     },
                     clinicas: {
@@ -128,7 +129,7 @@ $(document).ready(function() {
                         required:"Debes introducir el nombre"
                     },
                     numColegiado:{
-                        required:"Este campo es obligatorio",
+                        required: false,
                         digits:"Este campo es numerico"
                     },
                     clinicas:{
@@ -139,10 +140,11 @@ $(document).ready(function() {
                 var clinicasSelect = $('#inputClinicas').val();
                 var nombreDoctor = $('#inputNombre').val();
                 var numColegiado = $('#inputColegiado').val();
+                //el id_doctor sale del input type hidden
+                var id_doctor = $('#id_doc').val();
 
-            //si la validacion a sido correcta
             if(validar==true) {
-                $.ajax({
+                var modificar = $.ajax({
                     type: 'POST',
                     dataType: 'json',
                     url: 'http://localhost:8888/TAREA_DWEC_DATATABLES_AXAJ/modificar_doctores.php',
@@ -157,13 +159,13 @@ $(document).ready(function() {
                         $.growl.error({ message: "No se ha podido modificar el doctor" });
                     },
                     success: function () {
-
-                        $.growl.notice({ message: "El doctor ha sido modificado" });
                         miTabla.ajax.reload();
+                        $.growl.notice({ message: "El doctor ha sido modificado" });
 
                         $('#forEditar').modal('hide');
                     }
-                })
+                })//.removeData();
+
             }
         })
     });
@@ -172,12 +174,12 @@ $(document).ready(function() {
 
     $('table').on('click','.borrar',function() {
 
-
-        var id_doctor = $(this).prop('value');
+        var id_doc = $(this).prop('value');
+        $('#id_docBorrar').val(id_doc);
         $('#forBorrar').modal('show');
 
-        $('#ConfirmaBorrar').on('click',function(){
-
+        $('#ConfirmaBorrar').off('click').on('click',function(){
+            var id_doctor = $('#id_docBorrar').val();
             $.ajax({
 
                 type: 'POST',
@@ -199,7 +201,7 @@ $(document).ready(function() {
 
                     $('#forBorrar').modal('hide');
                 }
-            })
+            });
         });
     });
 
@@ -207,12 +209,11 @@ $(document).ready(function() {
 
     $('#nuevoDoctor').on('click',function(){
 
-
         $('.listaClinicas option').removeAttr("selected");
 
         $('#forCrear').modal('show');
 
-        $('#ConfirmaCrear').on('click',function(event){
+        $('#ConfirmaCrear').off('click').on('click',function(event){
            event.preventDefault();
             var validar =  $('#formularioCrear').validate({
                 rules: {
@@ -220,7 +221,7 @@ $(document).ready(function() {
                         required: true
                     },
                     numColegiado: {
-                        required: true,
+                        required:false,
                         digits: true
                     },
                     clinicas: {
@@ -233,7 +234,7 @@ $(document).ready(function() {
                         required:"Debes introducir el nombre"
                     },
                     numColegiado:{
-                        required:"Este campo es obligatorio",
+
                         digits:"Este campo es numerico"
                     },
                     clinicas:{
@@ -247,12 +248,11 @@ $(document).ready(function() {
             var numColegiado = $('#inputCrearColegiado').val();
 
             if(validar==true) {
-                $.ajax({
+               $.ajax({
                     type: 'POST',
                     dataType: 'json',
                     url: "http://localhost:8888/TAREA_DWEC_DATATABLES_AXAJ/crear_doctores.php",
                     data: {
-
                         nombreDoctor: nombreDoctor,
                         numColegiado: numColegiado,
                         clinicasSelect: clinicasSelect
@@ -273,12 +273,6 @@ $(document).ready(function() {
                     }
                 });
             }
-
         });
-
-
     });
-
-
-
-} );
+});

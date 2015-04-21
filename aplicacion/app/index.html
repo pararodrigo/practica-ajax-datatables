@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="no-js">
+<html class="no-js" lang="es">
   <head>
     <meta charset="utf-8">
     <title>aplicacion</title>
@@ -104,7 +104,7 @@
         </div>
 
       <div class="footer">
-        <p><span class="glyphicon glyphicon-heart"></span> from the Yeoman team</p>
+        <p><span class=" glyphicon glyphicon-hand-right"></span> Rodrigo Benito</p>
       </div>
 
     </div>
@@ -120,7 +120,8 @@
                 </div>
                 <div class="modal-body">
                     <form class="form-horizontal" id="formularioEditar">
-
+                        <!--El imput type hidden guarda el id_doctor cada vez que pulsamos editar-->
+                        <input  type="hidden" id="id_doc" value="">
                         <div class="form-group">
                             <label for="inputNombre" class="col-sm-4 control-label">Nombre</label>
                             <div class="col-sm-8">
@@ -154,6 +155,8 @@
 
     <!-- Modal BORRAR -->
     <div class="modal fade" id="forBorrar" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <!--El imput type hidden guarda el id_doctor cada vez que pulsamos editar-->
+        <input  type="hidden" id="id_docBorrar" value="">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -214,9 +217,11 @@
             </div>
         </div>
     </div>
+    <footer>
+        <a href="https://github.com/pararodrigo/practica-ajax-datatables/tree/master/aplicacion"><button class="btn btn-default">github</button></a>
+    </footer>
     <!-- build:js(.) scripts/vendor.js -->
     <!-- bower:js -->
-    <script src="bower_components/jquery/dist/jquery.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -227,10 +232,9 @@
 
         <!-- build:js({app,.tmp}) scripts/main.js -->
 
-    <script src="scripts/jquery-1.11.2.min.js"></script>
+    <script src="scripts/jquery-1.11.2.js"></script>
     <script src="scripts/jquery.dataTables.js"></script>
     <script src="scripts/bootstrap.min.js"></script>
-    <script src="scripts/fnReloadAjax.js"></script>
     <script src="scripts/jquery.validate.min.js"></script>
     <script src="scripts/jquery.growl.js"></script>
     <script src="scripts/main.js"></script>
