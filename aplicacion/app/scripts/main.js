@@ -166,7 +166,7 @@ $(document).ready(function() {
 
                         $('#forEditar').modal('hide');
                     }
-                })//.removeData();
+                })
 
             }
         })
@@ -253,7 +253,7 @@ $(document).ready(function() {
             if(numColegiado == ""){
                 numColegiado = null;
             }
-            alert(numColegiado);
+
 
             if(validar==true) {
                $.ajax({
